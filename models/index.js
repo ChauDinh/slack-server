@@ -1,18 +1,19 @@
 import Sequelize from "sequelize";
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password
-);
+const sequelize = new Sequelize("slack", "newuser", "katetsui1995", {
+  dialect: "postgres"
+});
 
 const models = {
-  user: sequelize.import("./users")
+  User: sequelize.import("./user"),
+  Channel: sequelize.import("./channel"),
+  Team: sequelize.import("./team"),
+  Message: sequelize.import("./message")
 };
 
-Object.keys(db).forEach(modelName => {
-  if ("associate" in db[modelName]) {
-    db[modelName].associate(db);
+Object.keys(models).forEach(modelName => {
+  if ("associate" in models[modelName]) {
+    models[modelName].associate(models);
   }
 });
 
