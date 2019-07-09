@@ -19,6 +19,6 @@ const grapqlEnpoint = "/graphql";
 app.use(grapqlEnpoint, bodyParser.json(), graphqlExpress({ schema }));
 app.use("/graphiql", graphiqlExpress({ endpointURL: grapqlEnpoint }));
 
-models.sequelize.sync().then(() => {
+models.sequelize.sync({ force: true }).then(() => {
   app.listen(8080);
 });
