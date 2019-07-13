@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import _ from "lodash";
 
+import { tryLogin } from "../auth";
+
 /**
  * _.pick({a: 1, b: 2}, a)
  * The output of this function would be {a: 1}
@@ -54,6 +56,9 @@ export default {
           errors: formatErrors(err, models)
         };
       }
-    }
+    },
+
+    login: (parent, { email, password }, { models, SECRET, SECRET2 }) =>
+      tryLogin(email, password, models, SECRET)
   }
 };
