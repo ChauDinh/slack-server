@@ -11,9 +11,11 @@ import models from "./models";
 const SECRET = "kimboyune2k";
 const SECRET2 = "kimboyunelovechau";
 
+// eslint-disable-next-line no-undef
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, "./schema")));
 
 const resolvers = mergeResolvers(
+  // eslint-disable-next-line no-undef
   fileLoader(path.join(__dirname, "./resolvers"))
 );
 
