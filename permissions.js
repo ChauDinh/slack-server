@@ -12,6 +12,14 @@ const createResolver = resolver => {
   return baseResolver;
 };
 
-export const requireAuth = createResolver((parent, args, context) => {
-  if (!context.user || !context.user.id) throw new Error("Not authenticated!");
+export const requireAuth = createResolver((parent, args, { user }) => {
+  if (!user || !user.id) throw new Error("Not authenticated!");
 });
+
+// export const requireAdmin = requireAuth.createResolver(
+//   (parent, args, { user }) => {
+//     if (!user.isAdmin) throw new Error("Requires admin access!");
+//   }
+// );
+
+// at the moment we don't need the requireAdmin
