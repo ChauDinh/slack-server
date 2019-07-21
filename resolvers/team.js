@@ -3,9 +3,15 @@ import { requireAuth } from "../permissions";
 
 export default {
   Query: {
-    allTeams: async (parent, args, { models, user }) => {
-      models.Team.findAll({ where: { owner: user.id } }, { raw: true });
-    }
+    allTeams: requireAuth.createResolver(
+      async (parent, args, { models, user }) => {
+        const allTeams = await models.Team.findAll(
+          { owner: user.id },
+          { raw: true }
+        );
+        return allTeams;
+      }
+    )
   },
   Mutation: {
     createTeam: requireAuth.createResolver(
