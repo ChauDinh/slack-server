@@ -30,7 +30,7 @@ export default {
           });
           return {
             ok: true,
-            response
+            team: response
           };
         } catch (err) {
           console.log(err.message);
