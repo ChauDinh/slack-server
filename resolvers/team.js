@@ -11,7 +11,25 @@ export default {
           },
           { raw: true }
         );
+
         return allTeams;
+      }
+    ),
+    inviteTeams: requireAuth.createResolver(
+      async (parent, args, { models, user }) => {
+        const inviteTeams = await models.Team.findAll(
+          {
+            include: [
+              {
+                model: models.User,
+                where: { id: user.id }
+              }
+            ]
+          },
+          { raw: true }
+        );
+
+        return inviteTeams;
       }
     )
   },
