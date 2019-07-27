@@ -3,6 +3,10 @@ import path from "path";
 import bodyParser from "body-parser";
 import { graphqlExpress, graphiqlExpress } from "apollo-server-express";
 import { makeExecutableSchema } from "graphql-tools";
+import { createServer } from "http";
+import { execute, subscribe } from "graphql";
+// import { PubSub } from "graphql-subscriptions";
+import { SubscriptionServer } from "subscriptions-transport-ws";
 import { fileLoader, mergeTypes, mergeResolvers } from "merge-graphql-schemas";
 import cors from "cors";
 import jwt from "jsonwebtoken";
@@ -78,7 +82,20 @@ app.use(
   }))
 );
 app.use("/graphiql", graphiqlExpress({ endpointURL: grapqlEnpoint }));
+const server = createServer(app);
 
 models.sequelize.sync({}).then(() => {
-  app.listen(8080);
+  server.listen(8080, () => {
+    new SubscriptionServer(
+      {
+        execute,
+        subscribe,
+        schema
+      },
+      {
+        server,
+        path: "/subscriptions"
+      }
+    );
+  });
 });
