@@ -2,57 +2,21 @@ import formatErrors from "../formatErrors";
 import { requireAuth } from "../permissions";
 
 export default {
-  Query: {
-    allTeams: requireAuth.createResolver(
-      async (parent, args, { models, user }) => {
-        const allTeams = await models.Team.findAll(
-          {
-            where: { owner: user.id }
-          },
-          { raw: true }
-        );
-
-        return allTeams;
-      }
-    ),
-    // inviteTeams: requireAuth.createResolver(
-    //   async (parent, args, { models, user }) => {
-    //     const inviteTeams = await models.Team.findAll(
-    //       {
-    //         include: [
-    //           {
-    //             model: models.User,
-    //             where: { id: user.id }
-    //           }
-    //         ]
-    //       },
-    //       { raw: true }
-    //     );
-
-    //     return inviteTeams;
-    //   }
-    // )
-    inviteTeams: requireAuth.createResolver(
-      async (parent, args, { models, user }) => {
-        const inviteTeams = await models.sequelize.query(
-          "select * from teams join members on id=team_id where user_id=?",
-          { replacements: [user.id], model: models.Team }
-        );
-
-        return inviteTeams;
-      }
-    )
-  },
   Mutation: {
     createTeam: requireAuth.createResolver(
       async (parent, args, { models, user }) => {
         try {
           const response = await models.sequelize.transaction(async () => {
-            const team = await models.Team.create({ ...args, owner: user.id });
+            const team = await models.Team.create({ ...args });
             await models.Channel.create({
               name: "general",
               public: true,
               teamId: team.id
+            });
+            await models.Member.create({
+              teamId: team.id,
+              userId: user.id,
+              admin: true
             });
             return team;
           });
