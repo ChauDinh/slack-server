@@ -9,7 +9,17 @@ export default {
   Subscription: {
     newChannelMessage: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator(NEW_CHANNEL_MESSAGE),
+        (parent, { channelId }, { models, user }) => {
+          // check if part of the team
+          // const channel = models.Channel.findOne({
+          //   where: { id: channelId }
+          // });
+          // const member = models.Member.findOne({
+          //   where: { teamId: channel.teamId, userId: user.id }
+          // });
+          // if (!member) throw new Error("Only member can subscribe messages!");
+          return pubsub.asyncIterator(NEW_CHANNEL_MESSAGE);
+        },
         (payload, args) => {
           return payload.channelId === args.channelId;
         }

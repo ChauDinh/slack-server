@@ -4,7 +4,7 @@ type Team {
   name: String!
   members: [User!]!
   channels: [Channel!]!
-  admin: Boolean
+  admin: Boolean!
 }
 
 type CreateTeamResponse {
