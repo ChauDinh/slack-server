@@ -16,10 +16,16 @@ export const requireAuth = createResolver((parent, args, { user }) => {
   if (!user || !user.id) throw new Error("Not authenticated!");
 });
 
-// export const requireAdmin = requireAuth.createResolver(
-//   (parent, args, { user }) => {
-//     if (!user.isAdmin) throw new Error("Requires admin access!");
-//   }
-// );
+export const requireTeamAccess = createResolver(
+  async (parent, { channelId }, { models, user }) => {
+    if (!user || !user.id) throw new Error("Not authenticated!");
 
-// at the moment we don't need the requireAdmin
+    // check if part of the team
+    const channel = await models.Channel.findOne({ where: { id: channelId } });
+    const member = await models.Member.findOne({
+      where: { teamId: channel.teamId, userId: user.id }
+    });
+
+    if (!member) throw new Error("Only member can subscribe messages!");
+  }
+);

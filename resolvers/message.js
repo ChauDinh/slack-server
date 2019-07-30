@@ -1,4 +1,4 @@
-import { requireAuth } from "../permissions";
+import { requireAuth, requireTeamAccess } from "../permissions";
 import { PubSub, withFilter } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
@@ -8,21 +8,15 @@ const NEW_CHANNEL_MESSAGE = "NEW_CHANNEL_MESSAGE";
 export default {
   Subscription: {
     newChannelMessage: {
-      subscribe: withFilter(
-        (parent, { channelId }, { models, user }) => {
-          // check if part of the team
-          // const channel = models.Channel.findOne({
-          //   where: { id: channelId }
-          // });
-          // const member = models.Member.findOne({
-          //   where: { teamId: channel.teamId, userId: user.id }
-          // });
-          // if (!member) throw new Error("Only member can subscribe messages!");
-          return pubsub.asyncIterator(NEW_CHANNEL_MESSAGE);
-        },
-        (payload, args) => {
-          return payload.channelId === args.channelId;
-        }
+      subscribe: requireTeamAccess.createResolver(
+        withFilter(
+          () => {
+            return pubsub.asyncIterator(NEW_CHANNEL_MESSAGE);
+          },
+          (payload, args) => {
+            return payload.channelId === args.channelId;
+          }
+        )
       )
     }
   },
