@@ -29,7 +29,7 @@
     "lodash": "^4.17.14",
     "merge-graphql-schemas": "^1.5.8",
     "pg": "^7.11.0",
-    "sequelize": "^5.9.4",
+    "sequelize": "4.13.5",
     "subscriptions-transport-ws": "^0.9.16"
   }
 }
