@@ -36,7 +36,7 @@ export default {
     messages: requireAuth.createResolver(
       async (parent, { channelId }, { models }) => {
         const messages = await models.Message.findAll(
-          { order: [["createdAt", "ASC"]], where: { channelId } },
+          { order: [["created_at", "ASC"]], where: { channelId } },
           { raw: true }
         );
         console.log(messages);
@@ -71,7 +71,7 @@ export default {
 
           return true;
         } catch (err) {
-          console.error(err);
+          console.log(err);
           return false;
         }
       }

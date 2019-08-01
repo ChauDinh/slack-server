@@ -2,13 +2,13 @@ import { requireAuth } from "../permissions";
 
 export default {
   DirectMessage: {
-    sender: async ({ user, userId }, args, { models }) => {
-      if (user) {
-        return user;
+    sender: async ({ sender, senderId }, args, { models }) => {
+      if (sender) {
+        return sender;
       }
 
       return await models.User.findOne(
-        { where: { id: userId } },
+        { where: { id: senderId } },
         { raw: true }
       );
     }
