@@ -16,6 +16,7 @@ type CreateTeamResponse {
 type Query {
   allTeams: [Team!]!
   inviteTeams: [Team!]!
+  getTeamMembers(teamId: Int!): [User!]!
 }
 
 type VoidResponse {
