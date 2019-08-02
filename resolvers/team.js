@@ -99,6 +99,15 @@ export default {
   },
   Team: {
     channels: async ({ id }, args, { models }) =>
-      await models.Channel.findAll({ where: { teamId: id } })
+      await models.Channel.findAll({ where: { teamId: id } }),
+    directMessageMembers: async ({ id }, args, { models, user }) =>
+      models.sequelize.query(
+        "select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm on (u.id = dm.sender_id or u.id = dm.receiver_id) where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id) and dm.team_id = :teamId",
+        {
+          replacements: { currentUserId: user.id, teamId: id },
+          model: models.User,
+          raw: true
+        }
+      )
   }
 };
