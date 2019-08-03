@@ -18,7 +18,9 @@ export default {
         }
       })
     ),
-    allUsers: (parent, args, { models }) => models.User.findAll()
+    allUsers: (parent, args, { models }) => models.User.findAll(),
+    getUser: (parent, { userId }, { models }) =>
+      models.User.findOne({ where: { id: userId } })
   },
   Mutation: {
     register: async (parent, args, { models }) => {
