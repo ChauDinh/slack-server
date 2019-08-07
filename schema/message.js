@@ -1,10 +1,17 @@
 export default `
 type Message {
   id: Int!
-  text: String!
+  text: String
   user: User!
   channel: Channel!
   created_at: String!
+  url: String
+  filetype: String
+}
+
+input File {
+  type: String!
+  path: String!
 }
 
 type Query {
@@ -16,7 +23,7 @@ type Subscription {
 }
 
 type Mutation {
-  createMessage(channelId: Int!, text: String!): Boolean!
+  createMessage(channelId: Int!, text: String, file: File): Boolean!
 }
 
 `;

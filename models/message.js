@@ -1,7 +1,9 @@
 export default (sequelize, DataTypes) => {
   const Message = sequelize.define("message", {
     text: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      url: DataTypes.STRING,
+      filetype: DataTypes.STRING
     }
   });
 
