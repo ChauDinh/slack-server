@@ -21,10 +21,31 @@ export default {
               ]
             };
           }
-          const channel = await models.Channel.create(args);
+
+          const response = await models.sequelize.transaction(
+            async transaction => {
+              const channel = await models.Channel.create(args, {
+                transaction
+              });
+              console.log(channel);
+              if (!args.public) {
+                const members = args.members.filter(m => m !== user.id);
+                members.push(user.id);
+                const privateMembers = members.map(member => ({
+                  userId: member,
+                  channelId: channel.dataValues.id
+                }));
+                await models.PrivateMembers.bulkCreate(privateMembers, {
+                  transaction
+                });
+              }
+              return channel;
+            }
+          );
+
           return {
             ok: true,
-            channel
+            channel: response
           };
         } catch (err) {
           console.log(err);
