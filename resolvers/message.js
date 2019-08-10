@@ -35,7 +35,7 @@ export default {
   },
   Query: {
     messages: requireAuth.createResolver(
-      async (parent, { channelId }, { models, user }) => {
+      async (parent, { channelId, offset }, { models, user }) => {
         const channel = await models.Channel.findOne({
           raw: true,
           where: { id: channelId }
@@ -52,11 +52,16 @@ export default {
             throw new Error("Not authorized for the channel!");
           }
         }
-        const messages = await models.Message.findAll(
-          { order: [["created_at", "ASC"]], where: { channelId } },
+
+        return await models.Message.findAll(
+          {
+            order: [["created_at", "ASC"]],
+            where: { channelId },
+            limit: 3,
+            offset
+          },
           { raw: true }
         );
-        return messages;
       }
     )
   },
