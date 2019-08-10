@@ -136,6 +136,7 @@ models.sequelize.sync({}).then(() => {
         execute,
         subscribe,
         schema,
+        // eslint-disable-next-line no-unused-vars
         onConnect: async ({ token, refreshToken }, webSocket) => {
           if (token && refreshToken) {
             try {
