@@ -5,30 +5,49 @@ export default {
   Mutation: {
     getOrCreateChannel: requireAuth.createResolver(
       async (parent, { members, teamId }, { models, user }) => {
-        members.push(user.id);
+        const member = await models.Member.findOne(
+          { where: { teamId, userId: user.id } },
+          { raw: true }
+        );
+
+        if (!member) throw new Error("Not Authorized!");
+
+        const allMembers = [...members, user.id];
         // check if dm channel already exists with these members
         const [data, result] = await models.sequelize.query(
           `
-          select c.id from channels as c, private_members pc
+          select c.id, c.name 
+          from channels as c, private_members pc
           where pc.channel_id = c.id and c.dm = true and c.public = false and c.team_id = ${teamId}
-          group by c.id
-          having array_agg(pc.user_id) @> Array[${members.join(
+          group by c.id, c.name
+          having array_agg(pc.user_id) @> Array[${allMembers.join(
             ","
-          )}] and count(pc.user_id) = ${members.length};
+          )}] and count(pc.user_id) = ${allMembers.length};
         `,
           { raw: true }
         );
         console.log(data, result);
 
         if (data.length) {
-          return data[0].id;
+          return data[0];
         }
+
+        const users = await models.User.findAll({
+          raw: true,
+          where: {
+            id: {
+              [models.sequelize.Op.in]: members
+            }
+          }
+        });
+
+        const name = users.map(user => user.username).join(", ");
 
         const channelId = await models.sequelize.transaction(
           async transaction => {
             const channel = await models.Channel.create(
               {
-                name: "hello",
+                name,
                 public: false,
                 dm: true,
                 teamId
@@ -38,7 +57,7 @@ export default {
               }
             );
             const cId = channel.dataValues.id;
-            const privateMembers = members.map(member => ({
+            const privateMembers = allMembers.map(member => ({
               userId: member,
               channelId: cId
             }));
@@ -49,7 +68,10 @@ export default {
           }
         );
 
-        return channelId;
+        return {
+          id: channelId,
+          name
+        };
       }
     ),
     createChannel: requireAuth.createResolver(
