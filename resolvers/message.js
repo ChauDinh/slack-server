@@ -55,9 +55,9 @@ export default {
 
         return await models.Message.findAll(
           {
-            order: [["created_at", "ASC"]],
+            order: [["created_at", "DESC"]],
             where: { channelId },
-            limit: 3,
+            limit: 10,
             offset
           },
           { raw: true }
