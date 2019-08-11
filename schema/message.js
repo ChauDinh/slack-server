@@ -15,7 +15,7 @@ input File {
 }
 
 type Query {
-  messages(channelId: Int!, offset: Int!): [Message!]!
+  messages(channelId: Int!, cursor: String): [Message!]!
 }
 
 type Subscription {

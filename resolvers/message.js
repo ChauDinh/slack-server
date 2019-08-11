@@ -35,7 +35,7 @@ export default {
   },
   Query: {
     messages: requireAuth.createResolver(
-      async (parent, { channelId, offset }, { models, user }) => {
+      async (parent, { channelId, cursor }, { models, user }) => {
         const channel = await models.Channel.findOne({
           raw: true,
           where: { id: channelId }
@@ -53,15 +53,19 @@ export default {
           }
         }
 
-        return await models.Message.findAll(
-          {
-            order: [["created_at", "DESC"]],
-            where: { channelId },
-            limit: 10,
-            offset
-          },
-          { raw: true }
-        );
+        const options = {
+          order: [["created_at", "DESC"]],
+          where: { channelId },
+          limit: 10
+        };
+
+        if (cursor) {
+          options.where.created_at = {
+            [models.op.lt]: cursor
+          };
+        }
+
+        return await models.Message.findAll(options, { raw: true });
       }
     )
   },
