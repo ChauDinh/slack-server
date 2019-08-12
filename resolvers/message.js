@@ -56,7 +56,7 @@ export default {
         const options = {
           order: [["created_at", "DESC"]],
           where: { channelId },
-          limit: 10
+          limit: 35
         };
 
         if (cursor) {
