@@ -116,7 +116,8 @@ app.use(
       user: req.user,
       SECRET,
       SECRET2,
-      channelLoader: new DataLoader(ids => channelBatch(ids, models, req.user))
+      channelLoader: new DataLoader(ids => channelBatch(ids, models, req.user)),
+      serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
     }
   }))
 );

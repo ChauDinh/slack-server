@@ -20,8 +20,8 @@ export default {
     }
   },
   Message: {
-    url: parent =>
-      parent.url ? `http://localhost:8080/${parent.url}` : parent.url,
+    url: (parent, args, { serverUrl }) =>
+      parent.url ? `${serverUrl}/${parent.url}` : parent.url,
     user: async ({ user, userId }, args, { models }) => {
       if (user) {
         return user;
