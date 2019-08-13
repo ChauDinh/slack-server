@@ -10,8 +10,10 @@ import { fileLoader, mergeTypes, mergeResolvers } from "merge-graphql-schemas";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import formidable from "formidable";
+import DataLoader from "dataloader";
 
 import { refreshTokens } from "./auth";
+import { channelBatch } from "./batchFunctions";
 
 import models from "./models";
 
@@ -113,7 +115,8 @@ app.use(
       models,
       user: req.user,
       SECRET,
-      SECRET2
+      SECRET2,
+      channelLoader: new DataLoader(ids => channelBatch(ids, models, req.user))
     }
   }))
 );
