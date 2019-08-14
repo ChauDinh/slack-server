@@ -15,6 +15,8 @@ const sequelize = new _sequelize2.default(
 process.env.TEST_DB || "slack", "chaudinh", "katetsui1995", {
   dialect: "postgres",
   operatorAliases: _sequelize2.default.Op,
+  // eslint-disable-next-line no-undef
+  host: process.env.DB_HOST || "localhost",
   define: {
     underscored: true
   }

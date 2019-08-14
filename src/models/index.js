@@ -8,6 +8,8 @@ const sequelize = new Sequelize(
   {
     dialect: "postgres",
     operatorAliases: Sequelize.Op,
+    // eslint-disable-next-line no-undef
+    host: process.env.DB_HOST || "localhost",
     define: {
       underscored: true
     }
