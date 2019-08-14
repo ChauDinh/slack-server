@@ -14,6 +14,8 @@ services:
       POSTGRES_PASSWORD: katetsui1995
       POSTGRES_USER: chaudinh
       POSTGRES_DB: slack
+    ports:
+      - "3030:5432"
   web:
     image: slack-clone-server
     ports:
@@ -23,6 +25,7 @@ services:
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-    command: ["./wait-for-it.sh", "db:5432", "--", "node", "index.js"]
+    # command: ["./wait-for-it.sh", "db:5432", "--", "node", "index.js"]
+    command: ["node", "index.js"]
 networks:
   webnet:

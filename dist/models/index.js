@@ -17,20 +17,20 @@ const sleep = ms => {
 exports.default = async () => {
   let maxReconnects = 20;
   let connected = false;
-  let sequelize;
+  const sequelize = new _sequelize2.default(
+  // eslint-disable-next-line no-undef
+  process.env.TEST_DB || "slack", "chaudinh", "katetsui1995", {
+    dialect: "postgres",
+    operatorAliases: _sequelize2.default.Op,
+    // eslint-disable-next-line no-undef
+    host: process.env.DB_HOST || "localhost",
+    define: {
+      underscored: true
+    }
+  });
   while (!connected && maxReconnects) {
     try {
-      sequelize = new _sequelize2.default(
-      // eslint-disable-next-line no-undef
-      process.env.TEST_DB || "slack", "chaudinh", "katetsui1995", {
-        dialect: "postgres",
-        operatorAliases: _sequelize2.default.Op,
-        // eslint-disable-next-line no-undef
-        host: process.env.DB_HOST || "localhost",
-        define: {
-          underscored: true
-        }
-      });
+      await sequelize.authenticate();
       connected = true;
     } catch (err) {
       console.log("reconnecting in 5 seconds");
