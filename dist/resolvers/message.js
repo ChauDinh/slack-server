@@ -31,7 +31,8 @@ exports.default = {
     }
   },
   Message: {
-    url: (parent, args, { serverUrl }) => parent.url ? `${serverUrl}/${parent.url}` : parent.url,
+    url: parent => parent.url ? // eslint-disable-next-line no-undef
+    `${process.env.SERVER_URL || "http://localhost:8080"}/${parent.url}` : parent.url,
     user: async ({ user, userId }, args, { models }) => {
       if (user) {
         return user;
