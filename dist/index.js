@@ -70,28 +70,6 @@ const app = (0, _express2.default)();
 // Allowing requests from other sites access this server
 app.use((0, _cors2.default)("*"));
 
-const addUser = async (req, res, next) => {
-  const token = req.headers["x-token"];
-  if (token) {
-    try {
-      const { user } = _jsonwebtoken2.default.verify(token, SECRET);
-      req.user = user;
-    } catch (err) {
-      const refreshToken = req.headers["x-refresh-token"];
-      const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, _models2.default, SECRET, SECRET2);
-
-      if (newTokens.token && newTokens.refreshToken) {
-        res.set("Access-Control-Expose-Headers", "x-token, x-refresh-token");
-        res.set("x-token", newTokens.token);
-        res.set("x-refresh-token", newTokens.refreshToken);
-      }
-
-      req.user = newTokens.user;
-    }
-  }
-  next();
-};
-
 const uploadDir = "files";
 
 const fileMiddleware = (req, res, next) => {
@@ -127,59 +105,87 @@ const fileMiddleware = (req, res, next) => {
   });
 };
 
-app.use(addUser);
-
 const grapqlEnpoint = "/graphql";
-
-app.use(grapqlEnpoint, _bodyParser2.default.json(), fileMiddleware, (0, _apolloServerExpress.graphqlExpress)(req => ({
-  schema,
-  context: {
-    models: _models2.default,
-    user: req.user,
-    SECRET,
-    SECRET2,
-    channelLoader: new _dataloader2.default(ids => (0, _batchFunctions.channelBatch)(ids, _models2.default, req.user)),
-    serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
-  }
-})));
-app.use("/graphiql", (0, _apolloServerExpress.graphiqlExpress)({
-  endpointURL: grapqlEnpoint,
-  subscriptionsEndpoint: `ws://localhost:8080/subscriptions`
-}));
 
 app.use("/files", _express2.default.static("files"));
 
 const server = (0, _http.createServer)(app);
 
-_models2.default.sequelize.sync({}).then(() => {
-  server.listen(8080, () => {
-    new _subscriptionsTransportWs.SubscriptionServer({
-      execute: _graphql.execute,
-      subscribe: _graphql.subscribe,
-      schema,
-      // eslint-disable-next-line no-unused-vars
-      onConnect: async ({ token, refreshToken }, webSocket) => {
-        if (token && refreshToken) {
-          try {
-            const { user } = _jsonwebtoken2.default.verify(token, SECRET);
-            return { models: _models2.default, user };
-          } catch (err) {
-            const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, _models2.default, SECRET, SECRET2);
-            return { models: _models2.default, user: newTokens.user };
-          }
-          // const member = await models.Member.findOne({
-          //   where: { teamId: 1, userId: user.id }
-          // });
-          // if (!member) {
-          //   throw new Error("Missing auth token!");
-          // }
+(0, _models2.default)().then(models => {
+  if (!models) {
+    console.log("Couldn't connect to database!");
+    return;
+  }
+  const addUser = async (req, res, next) => {
+    const token = req.headers["x-token"];
+    if (token) {
+      try {
+        const { user } = _jsonwebtoken2.default.verify(token, SECRET);
+        req.user = user;
+      } catch (err) {
+        const refreshToken = req.headers["x-refresh-token"];
+        const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, models, SECRET, SECRET2);
+
+        if (newTokens.token && newTokens.refreshToken) {
+          res.set("Access-Control-Expose-Headers", "x-token, x-refresh-token");
+          res.set("x-token", newTokens.token);
+          res.set("x-refresh-token", newTokens.refreshToken);
         }
 
-        return { models: _models2.default };
+        req.user = newTokens.user;
       }
-    }, {
-      server,
-      path: "/subscriptions"
+    }
+    next();
+  };
+
+  app.use(addUser);
+
+  app.use(grapqlEnpoint, _bodyParser2.default.json(), fileMiddleware, (0, _apolloServerExpress.graphqlExpress)(req => ({
+    schema,
+    context: {
+      models,
+      user: req.user,
+      SECRET,
+      SECRET2,
+      channelLoader: new _dataloader2.default(ids => (0, _batchFunctions.channelBatch)(ids, models, req.user)),
+      serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
+    }
+  })));
+  app.use("/graphiql", (0, _apolloServerExpress.graphiqlExpress)({
+    endpointURL: grapqlEnpoint,
+    subscriptionsEndpoint: `ws://localhost:8080/subscriptions`
+  }));
+
+  models.sequelize.sync({}).then(() => {
+    server.listen(8080, () => {
+      new _subscriptionsTransportWs.SubscriptionServer({
+        execute: _graphql.execute,
+        subscribe: _graphql.subscribe,
+        schema,
+        // eslint-disable-next-line no-unused-vars
+        onConnect: async ({ token, refreshToken }, webSocket) => {
+          if (token && refreshToken) {
+            try {
+              const { user } = _jsonwebtoken2.default.verify(token, SECRET);
+              return { models, user };
+            } catch (err) {
+              const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, models, SECRET, SECRET2);
+              return { models, user: newTokens.user };
+            }
+            // const member = await models.Member.findOne({
+            //   where: { teamId: 1, userId: user.id }
+            // });
+            // if (!member) {
+            //   throw new Error("Missing auth token!");
+            // }
+          }
+
+          return { models };
+        }
+      }, {
+        server,
+        path: "/subscriptions"
+      });
     });
   });
 });
