@@ -1,6 +1,6 @@
 FROM node:10
 WORKDIR /app
-COPY package-lock.json .
+COPY yarn.lock .
 COPY package.json .
 RUN yarn install 
 ENV NODE_ENV production
