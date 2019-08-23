@@ -18,7 +18,7 @@ const channelBatch = exports.channelBatch = async (ids, models, user) => {
     raw: true
   });
 
-  let data = {};
+  const data = {};
 
   // group by team
   results.forEach(result => {
@@ -34,4 +34,25 @@ const channelBatch = exports.channelBatch = async (ids, models, user) => {
   return ids.map(id => data[id]);
 };
 
-const dummy = exports.dummy = 5;
+const userBatch = exports.userBatch = async (ids, models) => {
+  // ids = [1, 2, 3]
+  // return = [{username: "bob"}]
+
+  const results = await models.sequelize.query(`
+    select * 
+    from users as u 
+    where u.id in (:userIds)`, {
+    replacements: { userIds: ids },
+    model: models.User,
+    raw: true
+  });
+
+  const data = {};
+
+  // group by user id
+  results.forEach(result => {
+    data[result.id] = result;
+  });
+
+  return ids.map(id => data[id]);
+};

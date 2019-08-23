@@ -13,7 +13,7 @@ import formidable from "formidable";
 import DataLoader from "dataloader";
 
 import { refreshTokens } from "./auth";
-import { channelBatch } from "./batchFunctions";
+import { channelBatch, userBatch } from "./batchFunctions";
 
 import getModels from "./models";
 
@@ -128,6 +128,7 @@ getModels().then(models => {
         channelLoader: new DataLoader(ids =>
           channelBatch(ids, models, req.user)
         ),
+        userLoader: new DataLoader(ids => userBatch(ids, models)),
         serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
       }
     }))

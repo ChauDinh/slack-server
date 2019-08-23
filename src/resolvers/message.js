@@ -25,15 +25,12 @@ export default {
         ? // eslint-disable-next-line no-undef
           `${process.env.SERVER_URL || "http://localhost:8080"}/${parent.url}`
         : parent.url,
-    user: async ({ user, userId }, args, { models }) => {
+    user: ({ user, userId }, args, { userLoader }) => {
       if (user) {
         return user;
       }
 
-      return await models.User.findOne(
-        { where: { id: userId } },
-        { raw: true }
-      );
+      return userLoader.load(userId);
     }
   },
   Query: {

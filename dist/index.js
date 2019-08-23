@@ -148,6 +148,7 @@ const server = (0, _http.createServer)(app);
       SECRET,
       SECRET2,
       channelLoader: new _dataloader2.default(ids => (0, _batchFunctions.channelBatch)(ids, models, req.user)),
+      userLoader: new _dataloader2.default(ids => (0, _batchFunctions.userBatch)(ids, models)),
       serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
     }
   })));
