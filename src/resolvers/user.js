@@ -20,7 +20,11 @@ export default {
     ),
     allUsers: (parent, args, { models }) => models.User.findAll(),
     getUser: (parent, { userId }, { models }) =>
-      models.User.findOne({ where: { id: userId } })
+      models.User.findOne({ where: { id: userId } }),
+    onlineUsers: (parent, args, { onlineUsers }) => {
+      // return onlineUsers.filter(user => Date.now() - user.last_seen < 60000);
+      return onlineUsers;
+    }
   },
   Mutation: {
     register: async (parent, args, { models }) => {
@@ -38,7 +42,8 @@ export default {
       }
     },
 
-    login: (parent, { email, password }, { models, SECRET, SECRET2 }) =>
-      tryLogin(email, password, models, SECRET, SECRET2)
+    login: async (parent, { email, password }, { models, SECRET, SECRET2 }) => {
+      return tryLogin(email, password, models, SECRET, SECRET2);
+    }
   }
 };

@@ -43,6 +43,8 @@ exports.default = {
       }
     },
 
-    login: (parent, { email, password }, { models, SECRET, SECRET2 }) => (0, _auth.tryLogin)(email, password, models, SECRET, SECRET2)
+    login: async (parent, { email, password }, { models, SECRET, SECRET2 }) => {
+      return (0, _auth.tryLogin)(email, password, models, SECRET, SECRET2);
+    }
   }
 };
