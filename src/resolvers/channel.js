@@ -41,7 +41,9 @@ export default {
           }
         });
 
-        const name = users.map(user => user.username).join(", ");
+        let name = user.username + ", ";
+
+        name += users.map(user => user.username).join(", ");
 
         const channelId = await models.sequelize.transaction(
           async transaction => {

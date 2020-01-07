@@ -113,7 +113,7 @@ const server = (0, _http.createServer)(app);
 
 (0, _models2.default)().then(models => {
   if (!models) {
-    console.log("Couldn't connect to database!");
+    console.error("Couldn't connect to database!");
     return;
   }
   const addUser = async (req, res, next) => {
@@ -157,6 +157,8 @@ const server = (0, _http.createServer)(app);
     subscriptionsEndpoint: `ws://localhost:8080/subscriptions`
   }));
 
+  let onlineUsers = [];
+
   models.sequelize.sync({}).then(() => {
     server.listen(8080, () => {
       new _subscriptionsTransportWs.SubscriptionServer({
@@ -168,20 +170,32 @@ const server = (0, _http.createServer)(app);
           if (token && refreshToken) {
             try {
               const { user } = _jsonwebtoken2.default.verify(token, SECRET);
-              return { models, user };
+              const userIdx = onlineUsers.findIndex(obj => obj.name === user.username);
+              if (userIdx < 0) {
+                onlineUsers.push({
+                  name: user.username,
+                  last_seen: Date.now()
+                });
+              } else {
+                onlineUsers[userIdx].last_seen = Date.now();
+              }
+
+              console.log(onlineUsers);
+              return { models, user, onlineUsers };
             } catch (err) {
               const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, models, SECRET, SECRET2);
+
               return { models, user: newTokens.user };
             }
-            // const member = await models.Member.findOne({
-            //   where: { teamId: 1, userId: user.id }
-            // });
-            // if (!member) {
-            //   throw new Error("Missing auth token!");
-            // }
           }
-
-          return { models };
+          return { models, onlineUsers };
+        },
+        // eslint-disable-next-line no-unused-vars
+        onDisconnect: async webSocket => {
+          // console.log("user disconnect");
+          let isOnline = false;
+          console.log(isOnline);
+          return { models, isOnline };
         }
       }, {
         server,

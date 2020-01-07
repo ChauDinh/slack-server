@@ -81,7 +81,7 @@ const server = createServer(app);
 
 getModels().then(models => {
   if (!models) {
-    console.log("Couldn't connect to database!");
+    console.error("Couldn't connect to database!");
     return;
   }
   const addUser = async (req, res, next) => {
@@ -125,6 +125,7 @@ getModels().then(models => {
         user: req.user,
         SECRET,
         SECRET2,
+        onlineUsers,
         channelLoader: new DataLoader(ids =>
           channelBatch(ids, models, req.user)
         ),
@@ -141,7 +142,9 @@ getModels().then(models => {
     })
   );
 
-  models.sequelize.sync({}).then(() => {
+  let onlineUsers = [];
+
+  models.sequelize.sync({ force: true }).then(() => {
     server.listen(8080, () => {
       new SubscriptionServer(
         {
@@ -153,7 +156,19 @@ getModels().then(models => {
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);
-                return { models, user };
+                const userIdx = await onlineUsers.findIndex(
+                  obj => obj.username === user.username
+                );
+                if (userIdx < 0) {
+                  await onlineUsers.push({
+                    username: user.username,
+                    last_seen: Date.now()
+                  });
+                } else {
+                  onlineUsers[userIdx].last_seen = await Date.now();
+                }
+                console.log(onlineUsers);
+                return { models, user, onlineUsers };
               } catch (err) {
                 const newTokens = await refreshTokens(
                   token,
@@ -162,16 +177,16 @@ getModels().then(models => {
                   SECRET,
                   SECRET2
                 );
-                return { models, user: newTokens.user };
-              }
-              // const member = await models.Member.findOne({
-              //   where: { teamId: 1, userId: user.id }
-              // });
-              // if (!member) {
-              //   throw new Error("Missing auth token!");
-              // }
-            }
 
+                return { models, user: newTokens.user, onlineUsers };
+              }
+            }
+            return { models, onlineUsers };
+          },
+          // eslint-disable-next-line no-unused-vars
+          onDisconnect: async webSocket => {
+            // console.log("some one disconnect");
+            // console.log(onlineUsers);
             return { models };
           }
         },
