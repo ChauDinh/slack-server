@@ -156,16 +156,16 @@ getModels().then(models => {
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);
-                const userIdx = await onlineUsers.findIndex(
+                const userIdx = onlineUsers.findIndex(
                   obj => obj.username === user.username
                 );
                 if (userIdx < 0) {
-                  await onlineUsers.push({
+                  onlineUsers.push({
                     username: user.username,
                     last_seen: Date.now()
                   });
                 } else {
-                  onlineUsers[userIdx].last_seen = await Date.now();
+                  onlineUsers[userIdx].last_seen = Date.now();
                 }
                 console.log(onlineUsers);
                 return { models, user, onlineUsers };
