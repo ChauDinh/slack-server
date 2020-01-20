@@ -147,6 +147,7 @@ const server = (0, _http.createServer)(app);
       user: req.user,
       SECRET,
       SECRET2,
+      onlineUsers,
       channelLoader: new _dataloader2.default(ids => (0, _batchFunctions.channelBatch)(ids, models, req.user)),
       userLoader: new _dataloader2.default(ids => (0, _batchFunctions.userBatch)(ids, models)),
       serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
@@ -159,7 +160,7 @@ const server = (0, _http.createServer)(app);
 
   let onlineUsers = [];
 
-  models.sequelize.sync({}).then(() => {
+  models.sequelize.sync({ force: true }).then(() => {
     server.listen(8080, () => {
       new _subscriptionsTransportWs.SubscriptionServer({
         execute: _graphql.execute,
@@ -170,32 +171,30 @@ const server = (0, _http.createServer)(app);
           if (token && refreshToken) {
             try {
               const { user } = _jsonwebtoken2.default.verify(token, SECRET);
-              const userIdx = onlineUsers.findIndex(obj => obj.name === user.username);
+              const userIdx = onlineUsers.findIndex(obj => obj.username === user.username);
               if (userIdx < 0) {
                 onlineUsers.push({
-                  name: user.username,
+                  username: user.username,
                   last_seen: Date.now()
                 });
               } else {
                 onlineUsers[userIdx].last_seen = Date.now();
               }
-
               console.log(onlineUsers);
               return { models, user, onlineUsers };
             } catch (err) {
               const newTokens = await (0, _auth.refreshTokens)(token, refreshToken, models, SECRET, SECRET2);
 
-              return { models, user: newTokens.user };
+              return { models, user: newTokens.user, onlineUsers };
             }
           }
           return { models, onlineUsers };
         },
         // eslint-disable-next-line no-unused-vars
         onDisconnect: async webSocket => {
-          // console.log("user disconnect");
-          let isOnline = false;
-          console.log(isOnline);
-          return { models, isOnline };
+          // console.log("some one disconnect");
+          // console.log(onlineUsers);
+          return { models };
         }
       }, {
         server,

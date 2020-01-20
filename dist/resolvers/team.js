@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -6,18 +6,18 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _formatErrors = require('../formatErrors');
+var _formatErrors = require("../formatErrors");
 
 var _formatErrors2 = _interopRequireDefault(_formatErrors);
 
-var _permissions = require('../permissions');
+var _permissions = require("../permissions");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
   Query: {
     getTeamMembers: _permissions.requireAuth.createResolver(async (parent, { teamId }, { models }) => {
-      return models.sequelize.query('select * from users as u join members as m on m.user_id = u.id where m.team_id=?', { replacements: [teamId], model: models.User, raw: true });
+      return models.sequelize.query("select * from users as u join members as m on m.user_id = u.id where m.team_id=?", { replacements: [teamId], model: models.User, raw: true });
     })
   },
   Mutation: {
@@ -26,7 +26,7 @@ exports.default = {
         const response = await models.sequelize.transaction(async transaction => {
           const team = await models.Team.create(_extends({}, args), { transaction });
           await models.Channel.create({
-            name: 'general',
+            name: "general",
             public: true,
             teamId: team.id
           }, { transaction });
@@ -61,8 +61,8 @@ exports.default = {
           return {
             ok: false,
             errors: [{
-              path: 'email',
-              message: 'You cannot add member to the team'
+              path: "email",
+              message: "You cannot add member to the team"
             }]
           };
         }
@@ -70,8 +70,8 @@ exports.default = {
           return {
             ok: false,
             errors: [{
-              path: 'email',
-              message: 'Could not find user with this email'
+              path: "email",
+              message: "Could not find user with this email"
             }]
           };
         }
@@ -89,8 +89,8 @@ exports.default = {
     })
   },
   Team: {
-    channels: async ({ id }, args, { channelLoader }) => channelLoader.load(id),
-    directMessageMembers: async ({ id }, args, { models, user }) => models.sequelize.query('select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm on (u.id = dm.sender_id or u.id = dm.receiver_id) where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id) and dm.team_id = :teamId', {
+    channels: ({ id }, args, { channelLoader }) => channelLoader.load(id),
+    directMessageMembers: ({ id }, args, { models, user }) => models.sequelize.query("select distinct on (u.id) u.id, u.username from users as u join direct_messages as dm on (u.id = dm.sender_id or u.id = dm.receiver_id) where (:currentUserId = dm.sender_id or :currentUserId = dm.receiver_id) and dm.team_id = :teamId", {
       replacements: { currentUserId: user.id, teamId: id },
       model: models.User,
       raw: true

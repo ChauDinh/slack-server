@@ -17,6 +17,12 @@ type Query {
   me: User!
   allUsers: [User!]!
   getUser(userId: Int!): User
+  onlineUsers: [onlineUser!]
+}
+
+type onlineUser {
+  username: String!
+  last_seen: String!
 }
 
 type RegisterResponse {
