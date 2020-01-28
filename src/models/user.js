@@ -8,9 +8,9 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         unique: true,
         validate: {
-          isAlphanumeric: {
-            args: true,
-            msg: "The username contains letters and numbers only!"
+          is: {
+            args: /^[a-zA-Z-,]+(\s{0,1}[a-zA-Z-, ])*$/,
+            msg: "The username contains letters, numbers and whitespace only!"
           },
           len: {
             args: [3, 25],
