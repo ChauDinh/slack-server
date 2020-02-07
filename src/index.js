@@ -148,7 +148,6 @@ getModels().then(models => {
     server.listen(8080, () => {
       new SubscriptionServer(
         {
-          execute,
           subscribe,
           schema,
           // eslint-disable-next-line no-unused-vars
@@ -188,7 +187,8 @@ getModels().then(models => {
             // console.log("some one disconnect");
             // console.log(onlineUsers);
             return { models };
-          }
+          },
+          execute
         },
         {
           server,
