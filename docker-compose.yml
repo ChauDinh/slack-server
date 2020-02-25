@@ -23,6 +23,7 @@ services:
     environment:
       DB_HOST: db
       REDIS_HOST: redis
+      SERVER_URL: http://167.71.204.239
     volumes:
       - ./files:/app/files
     depends_on:
