@@ -17,19 +17,17 @@ services:
     ports:
       - "3030:5432"
   web:
-    image: lesliedinh95/slack-server-02:latest
+    image: lesliedinh95/slackql-server:latest
     networks:
       - webnet
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-      SERVER_URL: http://167.71.204.239
     volumes:
       - ./files:/app/files
     depends_on:
       - db
       - redis
-    # command: ["./wait-for-it.sh", "db:5432", "--", "node", "index.js"]
     command: ["node", "index.js"]
   nginx:
     image: nginx
@@ -42,6 +40,6 @@ services:
       - webnet
     depends_on:
       - web
-    command: /bin/bash -c "cat < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    command: /bin/bash -c "cat /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
 networks:
   webnet:
