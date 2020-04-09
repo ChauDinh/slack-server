@@ -30,7 +30,7 @@ const resolvers = mergeResolvers(
 
 const schema = makeExecutableSchema({
   typeDefs,
-  resolvers
+  resolvers,
 });
 
 const app = express();
@@ -46,7 +46,7 @@ const fileMiddleware = (req, res, next) => {
   }
 
   const form = formidable.IncomingForm({
-    uploadDir
+    uploadDir,
   });
 
   form.parse(req, (error, { operations }, files) => {
@@ -58,13 +58,13 @@ const fileMiddleware = (req, res, next) => {
 
     if (Object.keys(files).length) {
       const {
-        file: { type, path: filePath }
+        file: { type, path: filePath },
       } = files;
       console.log(type);
       console.log(filePath);
       document.variables.file = {
         type,
-        path: filePath
+        path: filePath,
       };
     }
 
@@ -79,7 +79,7 @@ app.use("/files", express.static("files"));
 
 const server = createServer(app);
 
-getModels().then(models => {
+getModels().then((models) => {
   if (!models) {
     console.error("Couldn't connect to database!");
     return;
@@ -118,7 +118,7 @@ getModels().then(models => {
     grapqlEnpoint,
     bodyParser.json(),
     fileMiddleware,
-    graphqlExpress(req => ({
+    graphqlExpress((req) => ({
       schema,
       context: {
         models,
@@ -126,19 +126,19 @@ getModels().then(models => {
         SECRET,
         SECRET2,
         onlineUsers,
-        channelLoader: new DataLoader(ids =>
+        channelLoader: new DataLoader((ids) =>
           channelBatch(ids, models, req.user)
         ),
-        userLoader: new DataLoader(ids => userBatch(ids, models)),
-        serverUrl: `${req.protocol} + "://" + ${req.get("host")}`
-      }
+        userLoader: new DataLoader((ids) => userBatch(ids, models)),
+        serverUrl: `${req.protocol} + "://" + ${req.get("host")}`,
+      },
     }))
   );
   app.use(
     "/graphiql",
     graphiqlExpress({
       endpointURL: grapqlEnpoint,
-      subscriptionsEndpoint: `ws://localhost:8080/subscriptions`
+      subscriptionsEndpoint: `ws://localhost:8080/subscriptions`,
     })
   );
 
@@ -156,12 +156,12 @@ getModels().then(models => {
               try {
                 const { user } = jwt.verify(token, SECRET);
                 const userIdx = onlineUsers.findIndex(
-                  obj => obj.username === user.username
+                  (obj) => obj.username === user.username
                 );
                 if (userIdx < 0) {
                   onlineUsers.push({
                     username: user.username,
-                    last_seen: Date.now()
+                    last_seen: Date.now(),
                   });
                 } else {
                   onlineUsers[userIdx].last_seen = Date.now();
@@ -183,16 +183,14 @@ getModels().then(models => {
             return { models, onlineUsers };
           },
           // eslint-disable-next-line no-unused-vars
-          onDisconnect: async webSocket => {
-            // console.log("some one disconnect");
-            // console.log(onlineUsers);
+          onDisconnect: async (webSocket) => {
             return { models };
           },
-          execute
+          execute,
         },
         {
           server,
-          path: "/subscriptions"
+          path: "/subscriptions",
         }
       );
     });
