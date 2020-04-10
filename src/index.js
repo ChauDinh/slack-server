@@ -152,6 +152,9 @@ getModels().then((models) => {
           schema,
           // eslint-disable-next-line no-unused-vars
           onConnect: async ({ token, refreshToken }, webSocket) => {
+            console.log(webSocket._socket.server._events.request.on);
+            console.log(webSocket._socket.server._events.request.emit);
+            console.log(webSocket._socket.server._events.request.broadcast);
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);

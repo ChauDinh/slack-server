@@ -1,5 +1,4 @@
 export default `
-
 type Message {
   id: Int!
   text: String
@@ -8,6 +7,7 @@ type Message {
   created_at: String!
   url: String
   filetype: String
+  when: String
 }
 
 input File {

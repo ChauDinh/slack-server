@@ -6,6 +6,7 @@ export default `
     sender: User!
     receiverId: Int!
     created_at: String!
+    when: String
   }
 
   type Subscription {
