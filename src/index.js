@@ -144,11 +144,7 @@ getModels().then((models) => {
 
   let onlineUsers = [];
 
-<<<<<<< HEAD
   models.sequelize.sync({}).then(() => {
-=======
-  models.sequelize.sync({}).then(() => {
->>>>>>> @server/docker-compose
     server.listen(8080, () => {
       new SubscriptionServer(
         {
@@ -191,10 +187,6 @@ getModels().then((models) => {
           },
           // eslint-disable-next-line no-unused-vars
           onDisconnect: async (webSocket) => {
-<<<<<<< HEAD
-            
-=======
->>>>>>> @server/docker-compose
             return { models };
           },
           execute,
