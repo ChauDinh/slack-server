@@ -144,7 +144,7 @@ getModels().then((models) => {
 
   let onlineUsers = [];
 
-  models.sequelize.sync({}).then(() => {
+  models.sequelize.sync().then(() => {
     server.listen(8080, () => {
       new SubscriptionServer(
         {
