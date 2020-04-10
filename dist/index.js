@@ -160,10 +160,9 @@ const server = (0, _http.createServer)(app);
 
   let onlineUsers = [];
 
-  models.sequelize.sync({ force: true }).then(() => {
+  models.sequelize.sync({}).then(() => {
     server.listen(8080, () => {
       new _subscriptionsTransportWs.SubscriptionServer({
-        execute: _graphql.execute,
         subscribe: _graphql.subscribe,
         schema,
         // eslint-disable-next-line no-unused-vars
@@ -195,7 +194,8 @@ const server = (0, _http.createServer)(app);
           // console.log("some one disconnect");
           // console.log(onlineUsers);
           return { models };
-        }
+        },
+        execute: _graphql.execute
       }, {
         server,
         path: "/subscriptions"

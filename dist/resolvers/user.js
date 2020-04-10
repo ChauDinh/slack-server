@@ -27,7 +27,6 @@ exports.default = {
     allUsers: (parent, args, { models }) => models.User.findAll(),
     getUser: (parent, { userId }, { models }) => models.User.findOne({ where: { id: userId } }),
     onlineUsers: (parent, args, { onlineUsers }) => {
-      // return onlineUsers.filter(user => Date.now() - user.last_seen < 60000);
       return onlineUsers;
     }
   },

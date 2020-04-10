@@ -144,7 +144,11 @@ getModels().then((models) => {
 
   let onlineUsers = [];
 
-  models.sequelize.sync().then(() => {
+<<<<<<< HEAD
+  models.sequelize.sync({}).then(() => {
+=======
+  models.sequelize.sync({}).then(() => {
+>>>>>>> @server/docker-compose
     server.listen(8080, () => {
       new SubscriptionServer(
         {
@@ -152,6 +156,9 @@ getModels().then((models) => {
           schema,
           // eslint-disable-next-line no-unused-vars
           onConnect: async ({ token, refreshToken }, webSocket) => {
+            console.log(webSocket._socket.server._events.request.on);
+            console.log(webSocket._socket.server._events.request.emit);
+            console.log(webSocket._socket.server._events.request.broadcast);
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);
@@ -184,8 +191,10 @@ getModels().then((models) => {
           },
           // eslint-disable-next-line no-unused-vars
           onDisconnect: async (webSocket) => {
-            // console.log("some one disconnect");
-            // console.log(onlineUsers);
+<<<<<<< HEAD
+            
+=======
+>>>>>>> @server/docker-compose
             return { models };
           },
           execute,

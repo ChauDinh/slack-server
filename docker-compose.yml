@@ -6,10 +6,10 @@ services:
       - webnet
   db:
     image: postgres:11
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
     networks:
       - webnet
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: katetsui1995
       POSTGRES_USER: chaudinh
@@ -17,19 +17,18 @@ services:
     ports:
       - "3030:5432"
   web:
-    image: lesliedinh95/slack-clone-server:latest
+    image: lesliedinh95/slackql-server:latest
     networks:
       - webnet
     environment:
       DB_HOST: db
       REDIS_HOST: redis
-      SERVER_URL: http://52.163.205.122
+      SERVER_URL: http://178.128.59.217
     volumes:
       - ./files:/app/files
     depends_on:
       - db
       - redis
-    # command: ["./wait-for-it.sh", "db:5432", "--", "node", "index.js"]
     command: ["node", "index.js"]
   nginx:
     image: nginx

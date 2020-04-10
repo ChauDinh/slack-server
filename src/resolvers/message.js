@@ -16,11 +16,11 @@ export default {
             return payload.channelId === args.channelId;
           }
         )
-      )
-    }
+      ),
+    },
   },
   Message: {
-    url: parent =>
+    url: (parent) =>
       parent.url
         ? // eslint-disable-next-line no-undef
           `${process.env.SERVER_URL || "http://localhost:8080"}/${parent.url}`
@@ -31,22 +31,22 @@ export default {
       }
 
       return userLoader.load(userId);
-    }
+    },
   },
   Query: {
     messages: requireAuth.createResolver(
       async (parent, { channelId, cursor }, { models, user }) => {
         const channel = await models.Channel.findOne({
           raw: true,
-          where: { id: channelId }
+          where: { id: channelId },
         });
         if (!channel.public) {
           const member = await models.PrivateMembers.findOne({
             raw: true,
             where: {
               channelId,
-              userId: user.id
-            }
+              userId: user.id,
+            },
           });
           if (!member) {
             throw new Error("Not authorized for the channel!");
@@ -56,18 +56,18 @@ export default {
         const options = {
           order: [["created_at", "DESC"]],
           where: { channelId },
-          limit: 35
+          limit: 35,
         };
 
         if (cursor) {
           options.where.created_at = {
-            [models.op.lt]: cursor
+            [models.op.lt]: cursor,
           };
         }
 
         return await models.Message.findAll(options, { raw: true });
       }
-    )
+    ),
   },
   Mutation: {
     createMessage: requireAuth.createResolver(
@@ -80,23 +80,23 @@ export default {
           }
           const message = await models.Message.create({
             ...messageData,
-            userId: user.id
+            when: new Date().toLocaleString(),
+            userId: user.id,
           });
 
           const asyncFunc = async () => {
             const currentUser = await models.User.findOne({
-              where: { id: user.id }
+              where: { id: user.id },
             });
 
             pubsub.publish(NEW_CHANNEL_MESSAGE, {
               channelId: args.channelId,
               newChannelMessage: {
                 ...message.dataValues,
-                user: currentUser.dataValues
-              }
+                user: currentUser.dataValues,
+              },
             });
           };
-
           asyncFunc();
 
           return true;
@@ -105,6 +105,6 @@ export default {
           return false;
         }
       }
-    )
-  }
+    ),
+  },
 };

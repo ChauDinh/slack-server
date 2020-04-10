@@ -7,6 +7,7 @@ type Message {
   created_at: String!
   url: String
   filetype: String
+  when: String
 }
 
 input File {
