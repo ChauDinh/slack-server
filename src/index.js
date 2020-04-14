@@ -11,14 +11,17 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import formidable from "formidable";
 import DataLoader from "dataloader";
+import socketio from "socket.io";
 
 import { refreshTokens } from "./auth";
 import { channelBatch, userBatch } from "./batchFunctions";
 
 import getModels from "./models";
 
-const SECRET = "kimboyune2k";
-const SECRET2 = "kimboyunelovechau";
+// eslint-disable-next-line no-undef
+const SECRET = `${process.env.SECRET || "kimboyune2k"}`;
+// eslint-disable-next-line no-undef
+const SECRET2 = `${process.env.SECRET2 || "kimboyunelovechau"}`;
 
 // eslint-disable-next-line no-undef
 const typeDefs = mergeTypes(fileLoader(path.join(__dirname, "./schema")));
@@ -144,6 +147,21 @@ getModels().then((models) => {
 
   let onlineUsers = [];
 
+  const io = socketio(server);
+
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", ({ username }) => {
+      const user = username;
+      const idx = onlineUsers.indexOf(user);
+      if (idx < 0) {
+        onlineUsers.push(user);
+      }
+      socket.emit("getOnlineUsers", {
+        onlineUsers,
+      });
+    });
+  });
+
   models.sequelize.sync().then(() => {
     server.listen(8080, () => {
       new SubscriptionServer(
@@ -152,24 +170,22 @@ getModels().then((models) => {
           schema,
           // eslint-disable-next-line no-unused-vars
           onConnect: async ({ token, refreshToken }, webSocket) => {
-            console.log(webSocket._socket.server._events.request.on);
-            console.log(webSocket._socket.server._events.request.emit);
-            console.log(webSocket._socket.server._events.request.broadcast);
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);
-                const userIdx = onlineUsers.findIndex(
-                  (obj) => obj.username === user.username
-                );
-                if (userIdx < 0) {
-                  onlineUsers.push({
-                    username: user.username,
-                    last_seen: Date.now(),
-                  });
-                } else {
-                  onlineUsers[userIdx].last_seen = Date.now();
-                }
+                // const userIdx = onlineUsers.findIndex(
+                //   (obj) => obj.username === user.username
+                // );
+                // if (userIdx < 0) {
+                //   onlineUsers.push({
+                //     username: user.username,
+                //     last_seen: Date.now(),
+                //   });
+                // } else {
+                //   onlineUsers[userIdx].last_seen = Date.now();
+                // }
                 console.log(onlineUsers);
+
                 return { models, user, onlineUsers };
               } catch (err) {
                 const newTokens = await refreshTokens(
