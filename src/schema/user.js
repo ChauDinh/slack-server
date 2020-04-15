@@ -12,12 +12,6 @@ type Query {
   me: User!
   allUsers: [User!]!
   getUser(userId: Int!): User
-  onlineUsers: [onlineUser!]
-}
-
-type onlineUser {
-  username: String!
-  last_seen: String!
 }
 
 type RegisterResponse {
@@ -38,7 +32,4 @@ type Mutation {
   login(email: String!, password: String!): LoginResponse!
 }
 
-type Subscription {
-  onlineStatus: Boolean!
-}
 `;

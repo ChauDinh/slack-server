@@ -8,22 +8,19 @@ export default {
       models.sequelize.query(
         "select * from teams as team join members as member on team.id = member.team_id where member.user_id=?",
         { replacements: [user.id], model: models.Team, raw: true }
-      )
+      ),
   },
   Query: {
     me: requireAuth.createResolver((parent, args, { models, user }) =>
       models.User.findOne({
         where: {
-          id: user.id
-        }
+          id: user.id,
+        },
       })
     ),
     allUsers: (parent, args, { models }) => models.User.findAll(),
     getUser: (parent, { userId }, { models }) =>
       models.User.findOne({ where: { id: userId } }),
-    onlineUsers: (parent, args, { onlineUsers }) => {
-      return onlineUsers;
-    }
   },
   Mutation: {
     register: async (parent, args, { models }) => {
@@ -31,18 +28,18 @@ export default {
         const user = await models.User.create(args);
         return {
           ok: true,
-          user
+          user,
         };
       } catch (err) {
         return {
           ok: false,
-          errors: formatErrors(err, models)
+          errors: formatErrors(err, models),
         };
       }
     },
 
     login: async (parent, { email, password }, { models, SECRET, SECRET2 }) => {
       return tryLogin(email, password, models, SECRET, SECRET2);
-    }
-  }
+    },
+  },
 };

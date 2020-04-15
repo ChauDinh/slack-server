@@ -10,13 +10,13 @@ export default (sequelize, DataTypes) => {
         validate: {
           is: {
             args: /^[a-zA-Z-,]+(\s{0,1}[a-zA-Z-, ])*$/,
-            msg: "The username contains letters, numbers and whitespace only!"
+            msg: "The username contains letters, numbers and whitespace only!",
           },
           len: {
             args: [3, 25],
-            msg: "The username needs to be between 3 and 25 characters long!"
-          }
-        }
+            msg: "The username needs to be between 3 and 25 characters long!",
+          },
+        },
       },
       email: {
         type: DataTypes.STRING,
@@ -24,55 +24,55 @@ export default (sequelize, DataTypes) => {
         validate: {
           isEmail: {
             args: true,
-            msg: "Invalid email!"
-          }
-        }
+            msg: "Invalid email!",
+          },
+        },
       },
       password: {
         type: DataTypes.STRING,
         validate: {
           len: {
             args: [6, 100],
-            msg: "The password needs to be between 6 and 100 characters long!"
-          }
-        }
-      }
+            msg: "The password needs to be between 6 and 100 characters long!",
+          },
+        },
+      },
     },
     {
       hooks: {
-        afterValidate: async user => {
+        afterValidate: async (user) => {
           const hashedPassword = await bcrypt.hash(user.password, 12);
           // eslint-disable next line (require-atomic-updates: 0)
           user.password = hashedPassword;
-        }
-      }
+        },
+      },
     },
     sequelize
   );
 
-  User.associate = models => {
+  User.associate = (models) => {
     User.belongsToMany(models.Team, {
       through: models.Member,
       foreignKey: {
         name: "userId",
-        field: "user_id"
-      }
+        field: "user_id",
+      },
     });
 
     User.belongsToMany(models.Channel, {
       through: "channel_member",
       foreignKey: {
         name: "userId",
-        field: "user_id"
-      }
+        field: "user_id",
+      },
     });
 
     User.belongsToMany(models.Channel, {
       through: models.PrivateMembers,
       foreignKey: {
         name: "userId",
-        field: "user_id"
-      }
+        field: "user_id",
+      },
     });
   };
 

@@ -147,21 +147,6 @@ getModels().then((models) => {
 
   let onlineUsers = [];
 
-  const io = socketio(server);
-
-  io.on("connection", (socket) => {
-    socket.on("joinRoom", ({ username }) => {
-      const user = username;
-      const idx = onlineUsers.indexOf(user);
-      if (idx < 0) {
-        onlineUsers.push(user);
-      }
-      socket.emit("getOnlineUsers", {
-        onlineUsers,
-      });
-    });
-  });
-
   models.sequelize.sync().then(() => {
     server.listen(8080, () => {
       new SubscriptionServer(
@@ -184,7 +169,6 @@ getModels().then((models) => {
                 // } else {
                 //   onlineUsers[userIdx].last_seen = Date.now();
                 // }
-                console.log(onlineUsers);
 
                 return { models, user, onlineUsers };
               } catch (err) {
@@ -212,6 +196,33 @@ getModels().then((models) => {
           path: "/subscriptions",
         }
       );
+    });
+
+    // Attach socket.io to the server instance
+    const io = socketio(server);
+    io.on("connection", (socket) => {
+      socket.on("joinRoom", ({ username }) => {
+        const user = { id: socket.id, username: username };
+        const isUser = onlineUsers.filter(
+          (onlineUser) => onlineUser.username === username
+        );
+        const idx = onlineUsers.indexOf(isUser[0]);
+        if (idx < 0) {
+          onlineUsers.push(user);
+        }
+
+        socket.emit("getOnlineUsers", { onlineUsers: onlineUsers });
+      });
+      socket.on("disconnect", () => {
+        const user = onlineUsers.filter(
+          (onlineUser) => onlineUser.id === socket.id
+        );
+        const idx = onlineUsers.indexOf(user[0]);
+        if (idx !== -1) {
+          onlineUsers.splice(idx, 1)[0];
+          socket.emit("updateOnlineUsers", { onlineUsers: onlineUsers });
+        }
+      });
     });
   });
 });
