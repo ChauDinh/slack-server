@@ -158,17 +158,6 @@ getModels().then((models) => {
             if (token && refreshToken) {
               try {
                 const { user } = jwt.verify(token, SECRET);
-                // const userIdx = onlineUsers.findIndex(
-                //   (obj) => obj.username === user.username
-                // );
-                // if (userIdx < 0) {
-                //   onlineUsers.push({
-                //     username: user.username,
-                //     last_seen: Date.now(),
-                //   });
-                // } else {
-                //   onlineUsers[userIdx].last_seen = Date.now();
-                // }
 
                 return { models, user, onlineUsers };
               } catch (err) {
@@ -211,7 +200,7 @@ getModels().then((models) => {
           onlineUsers.push(user);
         }
 
-        socket.emit("getOnlineUsers", { onlineUsers: onlineUsers });
+        io.emit("getOnlineUsers", { onlineUsers: onlineUsers });
       });
       socket.on("disconnect", () => {
         const user = onlineUsers.filter(
@@ -220,8 +209,11 @@ getModels().then((models) => {
         const idx = onlineUsers.indexOf(user[0]);
         if (idx !== -1) {
           onlineUsers.splice(idx, 1)[0];
-          socket.emit("updateOnlineUsers", { onlineUsers: onlineUsers });
+          io.emit("updateOnlineUsers", { updatedOnlineUsers: onlineUsers });
         }
+      });
+      socket.on("chatMessage", (msg) => {
+        io.emit("notification", `${msg}`);
       });
     });
   });
