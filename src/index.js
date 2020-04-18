@@ -11,7 +11,7 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import formidable from "formidable";
 import DataLoader from "dataloader";
-import socketio from "socket.io";
+// import socketio from "socket.io";
 
 import { refreshTokens } from "./auth";
 import { channelBatch, userBatch } from "./batchFunctions";
@@ -128,7 +128,6 @@ getModels().then((models) => {
         user: req.user,
         SECRET,
         SECRET2,
-        onlineUsers,
         channelLoader: new DataLoader((ids) =>
           channelBatch(ids, models, req.user)
         ),
@@ -145,8 +144,6 @@ getModels().then((models) => {
     })
   );
 
-  let onlineUsers = [];
-
   models.sequelize.sync().then(() => {
     server.listen(8080, () => {
       new SubscriptionServer(
@@ -159,7 +156,7 @@ getModels().then((models) => {
               try {
                 const { user } = jwt.verify(token, SECRET);
 
-                return { models, user, onlineUsers };
+                return { models, user };
               } catch (err) {
                 const newTokens = await refreshTokens(
                   token,
@@ -169,10 +166,10 @@ getModels().then((models) => {
                   SECRET2
                 );
 
-                return { models, user: newTokens.user, onlineUsers };
+                return { models, user: newTokens.user };
               }
             }
-            return { models, onlineUsers };
+            return { models };
           },
           // eslint-disable-next-line no-unused-vars
           onDisconnect: async (webSocket) => {
@@ -185,36 +182,6 @@ getModels().then((models) => {
           path: "/subscriptions",
         }
       );
-    });
-
-    // Attach socket.io to the server instance
-    const io = socketio(server);
-    io.on("connection", (socket) => {
-      socket.on("joinRoom", ({ username }) => {
-        const user = { id: socket.id, username: username };
-        const isUser = onlineUsers.filter(
-          (onlineUser) => onlineUser.username === username
-        );
-        const idx = onlineUsers.indexOf(isUser[0]);
-        if (idx < 0) {
-          onlineUsers.push(user);
-        }
-
-        io.emit("getOnlineUsers", { onlineUsers: onlineUsers });
-      });
-      socket.on("disconnect", () => {
-        const user = onlineUsers.filter(
-          (onlineUser) => onlineUser.id === socket.id
-        );
-        const idx = onlineUsers.indexOf(user[0]);
-        if (idx !== -1) {
-          onlineUsers.splice(idx, 1)[0];
-          io.emit("updateOnlineUsers", { updatedOnlineUsers: onlineUsers });
-        }
-      });
-      socket.on("chatMessage", (msg) => {
-        io.emit("notification", `${msg}`);
-      });
     });
   });
 });
