@@ -1,7 +1,7 @@
 import Sequelize from "sequelize";
 
-const sleep = ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export default async () => {
@@ -18,8 +18,8 @@ export default async () => {
       // eslint-disable-next-line no-undef
       host: process.env.DB_HOST || "localhost",
       define: {
-        underscored: true
-      }
+        underscored: true,
+      },
     }
   );
   while (!connected && maxReconnects) {
@@ -42,10 +42,10 @@ export default async () => {
     Message: sequelize.import("./message"),
     Member: sequelize.import("./member.js"),
     DirectMessage: sequelize.import("./directMessage.js"),
-    PrivateMembers: sequelize.import("./privateMembers.js")
+    PrivateMembers: sequelize.import("./privateMembers.js"),
   };
 
-  Object.keys(models).forEach(modelName => {
+  Object.keys(models).forEach((modelName) => {
     if ("associate" in models[modelName]) {
       models[modelName].associate(models);
     }
