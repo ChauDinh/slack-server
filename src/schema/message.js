@@ -21,6 +21,7 @@ type Query {
 
 type Subscription {
   newChannelMessage(channelId: Int!): Message!
+  newNotification: String!
 }
 
 type Mutation {

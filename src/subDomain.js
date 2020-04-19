@@ -34,9 +34,6 @@ io.on("connection", (socket) => {
       io.emit("updateOnlineUsers", { updatedOnlineUsers: onlineUsers });
     }
   });
-  socket.on("chatMessage", (msg) => {
-    io.emit("notification", `${msg}`);
-  });
 });
 
 httpServer.listen(PORT, () =>
