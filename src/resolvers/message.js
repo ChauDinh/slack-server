@@ -3,7 +3,6 @@ import { withFilter } from "graphql-subscriptions";
 import pubsub from "../pubsub";
 
 const NEW_CHANNEL_MESSAGE = "NEW_CHANNEL_MESSAGE";
-const NEW_NOTIFICATION = "NEW_NOTIFICATION";
 
 export default {
   Subscription: {
@@ -18,9 +17,6 @@ export default {
           }
         )
       ),
-    },
-    newNotification: {
-      subscribe: () => pubsub.asyncIterator(NEW_NOTIFICATION),
     },
   },
   Message: {
@@ -89,7 +85,6 @@ export default {
           });
 
           const asyncFunc = async () => {
-            const newNotification = "someone has created new message!";
             const currentUser = await models.User.findOne({
               where: { id: user.id },
             });
@@ -101,10 +96,6 @@ export default {
                 user: currentUser.dataValues,
               },
             });
-
-            pubsub.publish(NEW_NOTIFICATION, {
-              newNotification,
-            });
           };
           asyncFunc();
 
@@ -115,5 +106,6 @@ export default {
         }
       }
     ),
+    // deleteMessage: requireAuth.createResolver(),
   },
 };
