@@ -3,3 +3,4 @@ test/users.json
 dump.sql
 files/
 pgdata
+.idea/
