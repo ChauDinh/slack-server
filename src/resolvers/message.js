@@ -35,7 +35,7 @@ export default {
   },
   Query: {
     messages: requireAuth.createResolver(
-      async (parent, { channelId, cursor }, { models, user }) => {
+      async (parent, { cursor, channelId }, { models, user }) => {
         const channel = await models.Channel.findOne({
           raw: true,
           where: { id: channelId },
