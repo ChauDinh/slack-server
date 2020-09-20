@@ -8,7 +8,8 @@ exports.default = (sequelize, DataTypes) => {
   const Message = sequelize.define("message", {
     text: DataTypes.STRING,
     url: DataTypes.STRING,
-    filetype: DataTypes.STRING
+    filetype: DataTypes.STRING,
+    when: DataTypes.STRING
   }, {
     indexes: [{
       fields: ["created_at"]

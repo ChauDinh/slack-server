@@ -12,6 +12,7 @@ type Message {
   created_at: String!
   url: String
   filetype: String
+  when: String
 }
 
 input File {
@@ -20,7 +21,7 @@ input File {
 }
 
 type Query {
-  messages(channelId: Int!, cursor: String): [Message!]!
+  messages(cursor: String, channelId: Int!): [Message!]!
 }
 
 type Subscription {

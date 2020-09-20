@@ -42,7 +42,7 @@ exports.default = {
     }
   },
   Query: {
-    messages: _permissions.requireAuth.createResolver(async (parent, { channelId, cursor }, { models, user }) => {
+    messages: _permissions.requireAuth.createResolver(async (parent, { cursor, channelId }, { models, user }) => {
       const channel = await models.Channel.findOne({
         raw: true,
         where: { id: channelId }
@@ -87,6 +87,7 @@ exports.default = {
           messageData.url = file.path;
         }
         const message = await models.Message.create(_extends({}, messageData, {
+          when: new Date().toLocaleString(),
           userId: user.id
         }));
 
@@ -102,7 +103,6 @@ exports.default = {
             })
           });
         };
-
         asyncFunc();
 
         return true;
@@ -111,5 +111,6 @@ exports.default = {
         return false;
       }
     })
+    // deleteMessage: requireAuth.createResolver(),
   }
 };

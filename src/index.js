@@ -11,7 +11,6 @@ import cors from "cors";
 import jwt from "jsonwebtoken";
 import formidable from "formidable";
 import DataLoader from "dataloader";
-// import socketio from "socket.io";
 
 import { refreshTokens } from "./auth";
 import { channelBatch, userBatch } from "./batchFunctions";
@@ -156,7 +155,10 @@ getModels().then((models) => {
               try {
                 const { user } = jwt.verify(token, SECRET);
 
-                return { models, user };
+                return {
+                  models,
+                  user,
+                };
               } catch (err) {
                 const newTokens = await refreshTokens(
                   token,
@@ -166,7 +168,10 @@ getModels().then((models) => {
                   SECRET2
                 );
 
-                return { models, user: newTokens.user };
+                return {
+                  models,
+                  user: newTokens.user,
+                };
               }
             }
             return { models };
