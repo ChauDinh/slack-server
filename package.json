@@ -43,7 +43,7 @@
 		"lodash": "^4.17.14",
 		"merge-graphql-schemas": "1.1.4",
 		"pg": "^7.12.1",
-		"sequelize": "4.13.5",
+		"sequelize": "5.15.1",
 		"socket.io": "^2.3.0",
 		"subscriptions-transport-ws": "^0.9.16"
 	}
